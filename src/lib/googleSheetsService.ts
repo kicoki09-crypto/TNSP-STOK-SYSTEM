@@ -506,16 +506,28 @@ export async function updateMultipleRowsById<T extends { id: string }>(sheetName
   await writeAllRows(sheetName, result);
 }
 
+// Flag to avoid repeated failed connection attempts if Firestore is not provisioned or unavailable
+let isFirestoreAvailable: boolean = true;
+
 /**
  * Loads shared Google Sheets connection settings from Firestore and caches them in localStorage.
- * This ensures all users on all devices stay connected automatically.
+ * This ensures all users on all devices stay connected automatically if Firestore is available.
+ * If Firestore backend is not provisioned or offline, falls back silently to localStorage.
  */
 export async function loadSharedSheetsConfig(): Promise<void> {
+  if (!isFirestoreAvailable) return;
+
   try {
     const db = getFirestore(app);
     const docRef = doc(db, 'system_config', 'google_sheets');
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
+    
+    // Timeout after 2.5 seconds to avoid stalling if Firestore backend is unprovisioned/unreachable
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Firestore connection timeout')), 2500)
+    );
+
+    const docSnap = await Promise.race([getDoc(docRef), timeoutPromise]);
+    if (docSnap && docSnap.exists()) {
       const data = docSnap.data();
       if (data.appsScriptUrl) {
         localStorage.setItem('gudang_apps_script_url', data.appsScriptUrl);
@@ -524,8 +536,10 @@ export async function loadSharedSheetsConfig(): Promise<void> {
         localStorage.setItem('gudang_google_sheets_db_id', data.spreadsheetId);
       }
     }
-  } catch (error) {
-    console.warn('Failed to load shared Google Sheets config from Firestore:', error);
+  } catch (error: any) {
+    // If backend is unavailable or not configured, disable further attempts to prevent connection errors
+    isFirestoreAvailable = false;
+    // Silent fallback to local storage configuration
   }
 }
 
@@ -533,16 +547,30 @@ export async function loadSharedSheetsConfig(): Promise<void> {
  * Saves Google Sheets connection settings to Firestore so it propagates to all users.
  */
 export async function saveSharedSheetsConfig(appsScriptUrl: string, spreadsheetId: string): Promise<void> {
+  // Always update local storage first
+  if (appsScriptUrl) localStorage.setItem('gudang_apps_script_url', appsScriptUrl);
+  if (spreadsheetId) localStorage.setItem('gudang_google_sheets_db_id', spreadsheetId);
+
+  if (!isFirestoreAvailable) return;
+
   try {
     const db = getFirestore(app);
     const docRef = doc(db, 'system_config', 'google_sheets');
-    await setDoc(docRef, {
-      appsScriptUrl: appsScriptUrl || '',
-      spreadsheetId: spreadsheetId || '',
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
+    
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Firestore connection timeout')), 2500)
+    );
+
+    await Promise.race([
+      setDoc(docRef, {
+        appsScriptUrl: appsScriptUrl || '',
+        spreadsheetId: spreadsheetId || '',
+        updatedAt: new Date().toISOString()
+      }, { merge: true }),
+      timeoutPromise
+    ]);
   } catch (error) {
-    console.warn('Failed to save shared Google Sheets config to Firestore:', error);
+    isFirestoreAvailable = false;
   }
 }
 

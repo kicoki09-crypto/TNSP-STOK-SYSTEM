@@ -25,6 +25,7 @@
     "react": "^19.0.1",
     "react-barcode": "^1.6.1",
     "react-dom": "^19.0.1",
+    "react-is": "^19.3.0",
     "react-signature-canvas": "1.0.6",
     "recharts": "^3.8.1",
     "trim-canvas": "^0.1.2",
