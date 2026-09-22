@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Bento Theme Layout Helpers */
+body {
+  @apply antialiased;
+}
+
+/* Premium Bento Card outlines */
+.bento-cell {
+  @apply rounded-2xl border transition-all duration-300;
+  @apply bg-white border-zinc-200/90 shadow-sm shadow-zinc-100 hover:shadow-md hover:border-zinc-300;
+  @apply dark:bg-zinc-900/50 dark:border-zinc-800 dark:shadow-none dark:hover:border-zinc-700 dark:hover:bg-zinc-900;
+}
+
+.bento-cell-flat {
+  @apply rounded-2xl border;
+  @apply bg-zinc-50 border-zinc-200 dark:bg-zinc-900/30 dark:border-zinc-800;
+}
+
+.bento-badge-danger {
+  @apply flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-full border border-rose-500/20 font-sans font-bold text-[10px] tracking-wide uppercase;
+}
+
+.bento-badge-success {
+  @apply flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20 font-sans font-bold text-[10px] tracking-wide uppercase;
+}
+
+.bento-badge-info {
+  @apply flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-500/20 font-sans font-bold text-[10px] tracking-wide uppercase;
+}
+
+.bento-input {
+  @apply px-3.5 py-2 text-xs rounded-xl border font-sans transition-colors duration-200;
+  @apply border-zinc-200 bg-white text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500;
+  @apply dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:focus:ring-indigo-400/20 dark:focus:border-indigo-400;
+}
+
+.bento-select {
+  @apply px-3 py-2 text-xs rounded-xl border font-sans cursor-pointer transition-colors duration-200;
+  @apply border-zinc-200 bg-white text-zinc-900 focus:outline-none focus:border-indigo-500;
+  @apply dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:focus:border-indigo-400;
+}
+
+/* Custom Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 9999px;
+}
+
+/* Print Overrides Supporting Crisp PDF Generation */
+@media print {
+  /* Hide all interactive elements, navbar, buttons, footers */
+  header,
+  footer,
+  aside,
+  button,
+  select,
+  input,
+  form,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Body background setting for actual white paper output */
+  body {
+    background-color: white !important;
+    color: black !important;
+    font-size: 10pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page layout defaults - landscape or auto-scaling friendly */
+  @page {
+    size: A4 portrait;
+    margin: 0.8cm 0.8cm 1cm 0.8cm;
+  }
+
+  /* Maximize document paper workspace */
+  #root,
+  #root > div,
+  main,
+  #exporter-tab-workspace {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Target sheet format precisely */
+  #official-document-sheet {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: white !important;
+    color: black !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure container doesn't create scroll clipping on print */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  .flex-1 {
+    display: block !important;
+  }
+
+  /* Table layout for clean, unclipped PDF printing */
+  table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+    font-size: 8pt !important;
+    page-break-inside: auto;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    padding: 4px 6px !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  th {
+    font-size: 8pt !important;
+    background-color: #f4f4f5 !important;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  /* Image sizing for print */
+  img {
+    max-width: 100% !important;
+  }
+}

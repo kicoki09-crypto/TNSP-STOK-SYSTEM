@@ -1,0 +1,10 @@
+{
+  "name": "Remix Sistem Inventaris Gudang \u0026 Barcode",
+  "description": "",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
